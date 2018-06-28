@@ -11,6 +11,8 @@
 |
 */
 
+use App\Events\MessagePosted;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -31,9 +33,11 @@ Route::get('/messages', function () {
 Route::post('/messages', function () {
 
     $user = Auth::user();
-    $user->messages()->create([
+    $message =  $user->messages()->create([
         'message' => request()->get('message')
     ]);
+
+    broadcast(new MessagePosted($message, $user))->toOthers();
 
     return ['status' => 'OK'];
 
